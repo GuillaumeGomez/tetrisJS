@@ -10,6 +10,7 @@ For the moment, it implements the following functionalities:
  * Score
  * Highest score saving (local storage)
  * A (very) few CSS events when some actions are done
+ * Next tetrimino preview
  * Ghost view
 
 #How to play
