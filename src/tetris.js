@@ -42,6 +42,7 @@ Tetrimino.prototype.check_lines = function(tetris){
 	var y = 0;
 	var bonus = 1;
 	var remainings = 0;
+	var nb_lines = 0;
 
 	while (y < tetris.map.length){
 		var x = 0;
@@ -57,6 +58,7 @@ Tetrimino.prototype.check_lines = function(tetris){
 			x += 1;
 		}
 		if (complete === true){
+			nb_lines += 1;
 			tetris.update_score(tetris.current_level * bonus);
 			bonus += 1;
 			var tmp_y = y;
@@ -79,6 +81,9 @@ Tetrimino.prototype.check_lines = function(tetris){
 			remainings += line_remainings;
 		}
 		y += 1;
+	}
+	if (nb_lines > 0){
+		tetris.update_line_number(nb_lines);
 	}
 	if (remainings===0){
 		tetris.span_event("tetris-bonus", 1800);
@@ -287,6 +292,7 @@ class Tetris {
 		this.remaining_time = 0;
 		this.next_piece = null;
 		this.can_repeat = true;
+		this.lines = 0;
 		this.colors = ["", "red", "yellow", "green", "blue", "purple", "orange", "light_blue"];
 	}
 
@@ -298,6 +304,18 @@ class Tetris {
 		}
 		if (this.current_level < this.levels_score.length && this.score >= this.levels_score[this.current_level - 1]) {
 			this.update_level(this.current_level + 1);
+		}
+	}
+
+	update_line_number(to_add){
+		this.lines += to_add;
+		var lines = document.getElementById("lines-number");
+		if (lines){
+			var txt = "Number of line";
+			if (this.lines > 1){
+				txt += 's';
+			}
+			lines.innerHTML = txt+': '+this.lines;
 		}
 	}
 
@@ -453,7 +471,7 @@ class Tetris {
 				}
 				content += '<div id="highest-score" class="fonter">Highest score: '+localStorage.highest_score+'</div>';
 			}
-			content += '<div id="score" class="fonter">Score: 0</div><div id="level" class="fonter">Level: 1</div><div id="preview-tetris">';
+			content += '<div id="score" class="fonter">Score: 0</div><div id="level" class="fonter">Level: 1</div><div id="lines-number" class="fonter">Number of line: 0</div><div id="preview-tetris">';
 			var y = 0;
 			while (y < 4){
 				var x = 0;
@@ -488,6 +506,8 @@ class Tetris {
 		this.create_map();
 		this.score = 0;
 		this.update_score(0);
+		this.lines = 0;
+		this.update_line_number(0);
 		this.update_level(1);
 		this.remaining_time = this.levels_speed[0];
 		document.onkeydown = keyboard_function;
