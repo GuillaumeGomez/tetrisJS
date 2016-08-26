@@ -141,10 +141,17 @@ Tetrimino.prototype.change_rotation = function(game_map) {
 	}
 	if (this.test_position(game_map, tmp_state, this.x, this.y) === true){
 		this.current_state = tmp_state;
-	}else if(this.x > 6 && (this.test_position(game_map, tmp_state, this.x - 1, this.y) === true ||
-			 (this.id === 1 && this.test_position(game_map, tmp_state, this.x - 2, this.y) === true))){
+	}else if(this.x > 6 && (this.test_position(game_map, tmp_state, this.x - 1, this.y) === true)){
 		this.current_state = tmp_state;
 		this.x -= 1;
+	}else if(this.x > 6 && this.id === 1){
+		if (this.test_position(game_map, tmp_state, this.x - 2, this.y) === true){
+			this.current_state = tmp_state;
+			this.x -= 2;
+		}else if (this.test_position(game_map, tmp_state, this.x - 3, this.y) === true){
+			this.current_state = tmp_state;
+			this.x -= 3;
+		}
 	}else if(this.x < 2 && this.test_position(game_map, tmp_state, this.x + 1, this.y) === true){
 		this.current_state = tmp_state;
 		this.x += 1;
