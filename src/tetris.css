@@ -50,6 +50,7 @@
 #preview-tetris{
 	margin:5px;
 	margin-top:20px;
+	width:164px;
 }
 #preview-tetris,#tetris{
 	border-left:1px solid black;
