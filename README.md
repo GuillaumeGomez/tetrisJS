@@ -12,6 +12,7 @@ For the moment, it implements the following functionalities:
  * A (very) few CSS events when some actions are done
  * Next tetrimino preview
  * Ghost view
+ * Pause mode
 
 #How to play
 
@@ -21,6 +22,7 @@ Here are the controls:
  * Up key: change tetrimino's rotation.
  * Down key: make the tetrimino go down by one case.
  * Right/left keys: make tetrimino move to the right/left.
+ * Escape key: Pause/Resume game.
 
 #Testing it
 

@@ -301,6 +301,7 @@ class Tetris {
 		this.can_repeat = true;
 		this.lines = 0;
 		this.colors = ["", "red", "yellow", "green", "blue", "purple", "orange", "light_blue"];
+		this.is_paused = false;
 	}
 
 	update_score(to_add){
@@ -394,48 +395,52 @@ class Tetris {
 			}
 			y += 1;
 		}
-		var y = 0;
-		while (y < this.current_piece.states[this.current_piece.current_state].length){
-			var x = 0;
-			while (x < this.current_piece.states[this.current_piece.current_state][y].length){
-				if (this.current_piece.states[this.current_piece.current_state][y][x] !== 0){
-					set_class(document.getElementById("case_"+(y+this.ghost.y)+"_"+(x+this.ghost.x)),
-							  "ghost-"+this.colors[this.ghost.id]);
+		if (this.is_paused === false) {
+			var y = 0;
+			while (y < this.current_piece.states[this.current_piece.current_state].length){
+				var x = 0;
+				while (x < this.current_piece.states[this.current_piece.current_state][y].length){
+					if (this.current_piece.states[this.current_piece.current_state][y][x] !== 0){
+						set_class(document.getElementById("case_"+(y+this.ghost.y)+"_"+(x+this.ghost.x)),
+								  "ghost-"+this.colors[this.ghost.id]);
+					}
+					x += 1;
 				}
-				x += 1;
+				y += 1;
 			}
-			y += 1;
+			this.current_piece.draw(this.colors);
 		}
-		this.current_piece.draw(this.colors);
 	}
 
 	game_loop() {
-		if (this.current_piece === null){
-			this.generate_new_piece();
-		}
-		var new_time = new Date();
-		this.remaining_time -= new_time.getTime() - this.prev_time.getTime();
-		this.prev_time = new_time;
-		if (this.remaining_time < 0){
-			if (this.current_piece.change_position(this.map, this.current_piece.x, this.current_piece.y + 1) === false){
-				this.current_piece.make_permanent(this);
+		if (this.is_paused === false) {
+			if (this.current_piece === null){
 				this.generate_new_piece();
 			}
-			this.remaining_time += this.levels_speed[this.current_level - 1];
-		}
-		if (this.current_piece.test_current_position(this.map) === false){
-			// end of the game
-			clearInterval(this.interval_id);
-			this.interval_id = null;
-			document.onkeydown = null;
-			add_class(document.getElementById("tetris"), "game-over");
-			add_class(document.getElementById("tetris-info"), "game-over");
+			var new_time = new Date();
+			this.remaining_time -= new_time.getTime() - this.prev_time.getTime();
+			this.prev_time = new_time;
+			if (this.remaining_time < 0){
+				if (this.current_piece.change_position(this.map, this.current_piece.x, this.current_piece.y + 1) === false){
+					this.current_piece.make_permanent(this);
+					this.generate_new_piece();
+				}
+				this.remaining_time += this.levels_speed[this.current_level - 1];
+			}
+			if (this.current_piece.test_current_position(this.map) === false){
+				// end of the game
+				clearInterval(this.interval_id);
+				this.interval_id = null;
+				document.onkeydown = null;
+				add_class(document.getElementById("tetris"), "game-over");
+				add_class(document.getElementById("tetris-info"), "game-over");
 
-			var end = document.getElementById("game-over");
-			end.innerHTML = "<div>End of the game.<br>Your score: "+this.score+"<br><br><button class='fonter but' onclick='tetris_game.start_new_game();'>Restart</button></div>";
-			remove_class(end, "hidden");
-			this.check_highest_score(this.score);
-			return;
+				var end = document.getElementById("game-over");
+				end.innerHTML = "<div>End of the game.<br>Your score: "+this.score+"<br><br><button class='fonter but' onclick='tetris_game.start_new_game();'>Restart</button></div>";
+				remove_class(end, "hidden");
+				this.check_highest_score(this.score);
+				return;
+			}
 		}
 		this.draw_game();
 	}
@@ -495,6 +500,36 @@ class Tetris {
 		}
 	}
 
+	start_timer(){
+		this.interval_id = setInterval(function() {
+			tetris_game.game_loop();
+		}, 17);
+	}
+
+	stop_timer(){
+		if (this.interval_id && this.interval_id !== null){
+			clearInterval(this.interval_id);
+		}
+	}
+
+	resume(){
+		var end = document.getElementById("game-over");
+		add_class(end, "hidden");
+		this.is_paused = false;
+		this.prev_time = new Date();
+		this.draw_game();
+		this.start_timer();
+	}
+
+	pause(){
+		var end = document.getElementById("game-over");
+		end.innerHTML = "<div>Game is paused.<br>To resume, press ESC or click on the button below.<br><br><button class='fonter but' onclick='tetris_game.resume();'>Resume</button></div>";
+		remove_class(end, "hidden");
+		this.is_paused = true;
+		this.stop_timer();
+		this.draw_game();
+	}
+
 	create_map(){
 		var y = 0;
 		this.map = [];
@@ -522,13 +557,10 @@ class Tetris {
 		this.prev_time = new Date();
 		this.current_piece = null;
 		this.next_piece = null;
+		this.is_paused = false;
 		this.generate_new_piece();
-		if (this.interval_id && this.interval_id !== null){
-			clearInterval(this.interval_id);
-		}
-		this.interval_id = setInterval(function() {
-			tetris_game.game_loop();
-		}, 17);
+		this.stop_timer();
+		this.start_timer();
 	}
 
 	key_event(ev){
@@ -540,46 +572,56 @@ class Tetris {
 		var intAltKey = ev.altKey;
 		var intCtrlKey = ev.ctrlKey;
 
+		if (intAltKey || intCtrlKey) {
+			return false;
+		}
+
 		var KEY_DOWN = 40;
 		var KEY_UP = 38;
 		var KEY_RIGHT = 39;
 		var KEY_LEFT = 37;
 		var KEY_SPACE = 32;
+		var KEY_ESC = 27;
 
-		if (intAltKey || intCtrlKey) {
-			return false;
-		}
-		var tmp_x = this.current_piece.x;
-		var tmp_y = this.current_piece.y;
-
-		if (intKeyCode === KEY_DOWN){
-			tmp_y += 1;
-			this.remaining_time = this.levels_speed[this.current_level - 1];
-		}else if (intKeyCode === KEY_RIGHT){
-			tmp_x += 1;
-		}else if (intKeyCode === KEY_LEFT){
-			tmp_x -= 1;
-		}else if (intKeyCode === KEY_UP){
-			this.current_piece.change_rotation(this.map);
-			this.update_ghost();
-			return true;
-		}else if (intKeyCode === KEY_SPACE && this.can_repeat === true){
-			this.can_repeat = false;
-			while (this.current_piece.change_position(this.map, this.current_piece.x, this.current_piece.y + 1) === true){
-				this.update_score(this.current_level);
+		if (this.is_paused === true) {
+			if (intKeyCode === KEY_ESC) {
+				this.resume();
 			}
-			this.current_piece.make_permanent(this);
-			this.remaining_time = this.levels_speed[this.current_level - 1];
-			return true;
-		}else{
-			return false;
-		}
-		if (this.current_piece.change_position(this.map, tmp_x, tmp_y) === true){
-			if (intKeyCode === KEY_LEFT || intKeyCode === KEY_RIGHT){
+		} else {
+			var tmp_x = this.current_piece.x;
+			var tmp_y = this.current_piece.y;
+
+			if (intKeyCode === KEY_DOWN){
+				tmp_y += 1;
+				this.remaining_time = this.levels_speed[this.current_level - 1];
+			}else if (intKeyCode === KEY_RIGHT){
+				tmp_x += 1;
+			}else if (intKeyCode === KEY_LEFT){
+				tmp_x -= 1;
+			}else if (intKeyCode === KEY_UP){
+				this.current_piece.change_rotation(this.map);
 				this.update_ghost();
+				return true;
+			}else if (intKeyCode === KEY_SPACE && this.can_repeat === true){
+				this.can_repeat = false;
+				while (this.current_piece.change_position(this.map, this.current_piece.x, this.current_piece.y + 1) === true){
+					this.update_score(this.current_level);
+				}
+				this.current_piece.make_permanent(this);
+				this.remaining_time = this.levels_speed[this.current_level - 1];
+				return true;
+			} else if (intKeyCode === KEY_ESC){
+				this.pause();
+			}else{
+				return false;
 			}
-		}else if (intKeyCode === KEY_DOWN) {
-			this.current_piece.make_permanent(this);
+			if (this.current_piece.change_position(this.map, tmp_x, tmp_y) === true){
+				if (intKeyCode === KEY_LEFT || intKeyCode === KEY_RIGHT){
+					this.update_ghost();
+				}
+			}else if (intKeyCode === KEY_DOWN) {
+				this.current_piece.make_permanent(this);
+			}
 		}
 		return true;
 	}
