@@ -288,7 +288,7 @@ class Ghost {
 class Tetris {
 	constructor(){
 		this.levels_speed = [1000, 850, 700, 600, 500, 400, 300, 250, 221, 190];
-		this.levels_score = [800, 1700, 2700, 3800, 4900, 6000, 7000, 8000, 9000, 10000];
+		this.levels_line = [20, 40, 60, 80, 100, 120, 140, 160, 180, 200];
 		this.score = 0;
 		this.current_level = 1;
 		this.current_piece = null;
@@ -310,9 +310,6 @@ class Tetris {
 		if (score){
 			score.innerHTML = "Score: " + this.score;
 		}
-		if (this.current_level < this.levels_score.length && this.score >= this.levels_score[this.current_level - 1]) {
-			this.update_level(this.current_level + 1);
-		}
 	}
 
 	update_line_number(to_add){
@@ -324,6 +321,9 @@ class Tetris {
 				txt += 's';
 			}
 			lines.innerHTML = txt+': '+this.lines;
+		}
+		if (this.current_level < this.levels_line.length && this.lines >= this.levels_line[this.current_level - 1]) {
+			this.update_level(this.current_level + 1);
 		}
 	}
 
