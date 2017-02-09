@@ -324,6 +324,7 @@ class Tetris {
 		if (score){
 			score.innerHTML = "Score: " + this.score;
 		}
+		this.check_highest_score(this.score);
 	}
 
 	update_line_number(to_add){
@@ -336,6 +337,7 @@ class Tetris {
 			}
 			lines.innerHTML = txt+': '+this.lines;
 		}
+		this.check_highest_number_of_lines(this.lines);
 		if (this.current_level < this.levels_line.length && this.lines >= this.levels_line[this.current_level - 1]) {
 			this.update_level(this.current_level + 1);
 		}
@@ -466,6 +468,7 @@ class Tetris {
 				end.innerHTML = "<div>End of the game.<br>Your score: "+this.score+"<br><br><button class='fonter but' onclick='tetris_game.start_new_game();'>Restart</button></div>";
 				remove_class(end, "hidden");
 				this.check_highest_score(this.score);
+				this.check_highest_number_of_lines(this.lines);
 				return;
 			}
 		}
@@ -477,6 +480,14 @@ class Tetris {
 		if (highest && typeof(Storage) !== "undefined" && new_score > localStorage.highest_score) {
 			localStorage.highest_score = new_score;
 			highest.innerHTML = 'Highest score: '+localStorage.highest_score;
+		}
+	}
+
+	check_highest_number_of_lines(new_number_of_lines){
+		var nb_lines = document.getElementById("highest-lines");
+		if (nb_lines && typeof(Storage) !== "undefined" && new_number_of_lines > localStorage.highest_number_of_lines) {
+			localStorage.highest_number_of_lines = new_number_of_lines;
+			nb_lines.innerHTML = 'Highest number of lines: '+localStorage.highest_number_of_lines;
 		}
 	}
 
@@ -508,9 +519,13 @@ class Tetris {
 				if (localStorage.highest_score === undefined){
 					localStorage.highest_score = 0;
 				}
-				content += '<div id="highest-score" class="fonter">Highest score: '+localStorage.highest_score+'</div>';
+				if (localStorage.highest_number_of_lines === undefined){
+					localStorage.highest_number_of_lines = 0;
+				}
+				content += '<div id="highest-score" class="fonter">Highest score: '+localStorage.highest_score+'</div>'+
+					'<div id="highest-lines" class="fonter">Highest number of lines: '+localStorage.highest_number_of_lines+'</div>';
 			}
-			content += '<div id="score" class="fonter">Score: 0</div><div id="level" class="fonter">Level: 1</div><div id="lines-number" class="fonter">Number of line: 0</div><div id="preview-tetris">';
+			content += '<br><div id="score" class="fonter">Score: 0</div><div id="level" class="fonter">Level: 1</div><div id="lines-number" class="fonter">Number of line: 0</div><div id="preview-tetris">';
 			var y = 0;
 			while (y < 4){
 				var x = 0;
