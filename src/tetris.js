@@ -170,6 +170,8 @@ function TetriminoI(){
 					  [0,1,0,0],
 					  [0,1,0,0],
 					  [0,1,0,0]]);
+	this.preview_x = 0;
+	this.preview_y = 1;
 }
 TetriminoI.prototype = Object.create(Tetrimino.prototype);
 
@@ -192,6 +194,8 @@ function TetriminoJ(){
 					  [2,0,0,0],
 					  [2,2,0,0],
 					  [0,0,0,0]]);
+	this.preview_x = 0;
+	this.preview_y = 1;
 }
 TetriminoJ.prototype = Object.create(Tetrimino.prototype);
 
@@ -214,6 +218,8 @@ function TetriminoL(){
 					  [3,0,0,0],
 					  [3,0,0,0],
 					  [0,0,0,0]]);
+	this.preview_x = 0;
+	this.preview_y = 1;
 }
 TetriminoL.prototype = Object.create(Tetrimino.prototype);
 
@@ -224,6 +230,8 @@ function TetriminoO(){
 					  [4,4,0,0],
 					  [0,0,0,0],
 					  [0,0,0,0]]);
+	this.preview_x = 1;
+	this.preview_y = 1;
 }
 TetriminoO.prototype = Object.create(Tetrimino.prototype);
 
@@ -238,6 +246,8 @@ function TetriminoS(){
 					  [0,5,5,0],
 					  [0,0,5,0],
 					  [0,0,0,0]]);
+	this.preview_x = 0;
+	this.preview_y = 1;
 }
 TetriminoS.prototype = Object.create(Tetrimino.prototype);
 
@@ -252,6 +262,8 @@ function TetriminoZ(){
 					  [0,6,6,0],
 					  [0,6,0,0],
 					  [0,0,0,0]]);
+	this.preview_x = 0;
+	this.preview_y = 1;
 }
 TetriminoZ.prototype = Object.create(Tetrimino.prototype);
 
@@ -274,6 +286,8 @@ function TetriminoT(){
 					  [0,7,7,0],
 					  [0,7,0,0],
 					  [0,0,0,0]]);
+	this.preview_x = 0;
+	this.preview_y = 1;
 }
 TetriminoT.prototype = Object.create(Tetrimino.prototype);
 
@@ -357,12 +371,25 @@ class Tetris {
 		}, duration);
 	}
 
+	clear_preview(){
+		var y = 0;
+		while (y < 4){
+			var x = 0;
+			while (x < 4){
+				set_class(document.getElementById("prev_"+y+"_"+x), '');
+				x += 1;
+			}
+			y += 1;
+		}
+	}
+
 	update_preview(){
+		this.clear_preview();
 		var y = 0;
 		while (y < this.next_piece.states[0].length){
 			var x = 0;
 			while (x < this.next_piece.states[0][y].length){
-				set_class(document.getElementById("prev_"+y+"_"+x), this.colors[this.next_piece.states[0][y][x]]);
+				set_class(document.getElementById("prev_"+(y+this.next_piece.preview_y)+"_"+(x+this.next_piece.preview_x)), this.colors[this.next_piece.states[0][y][x]]);
 				x += 1;
 			}
 			y += 1;
