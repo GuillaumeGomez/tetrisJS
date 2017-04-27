@@ -87,7 +87,7 @@ Tetrimino.prototype.check_lines = function(tetris){
 	}
 	if (remainings===0){
 		tetris.span_event("tetris-bonus", 1800);
-		tetris.update_score(100);
+		tetris.update_score(1000);
 	}
 };
 Tetrimino.prototype.test_current_position = function(game_map){
