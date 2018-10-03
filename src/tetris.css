@@ -61,6 +61,7 @@
 }
 #tetris{
 	margin-left:33%;
+	outline:none;
 }
 #game-over{
 	font-size: 33px;
